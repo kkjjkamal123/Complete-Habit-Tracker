@@ -7,7 +7,7 @@
 A premium, local-first tracker for tasks, time, habits, goals and daily reviews —
 one delightful app for **Android · Windows · Linux · Web**.
 
-[Download](#download) &nbsp;·&nbsp; [Features](#features) &nbsp;·&nbsp; [Build](#build-from-source)
+[Download](#download) &nbsp;·&nbsp; [Features](#features) &nbsp;·&nbsp;
 
 </div>
 
@@ -46,15 +46,6 @@ database. Turn it off anytime; everything keeps working offline.
 ## Built with
 
 React 19 · TypeScript · Vite · Framer Motion · Capacitor (Android) · Electron (desktop) · Firebase (optional)
-
-## Build from source
-
-```bash
-git clone https://github.com/kkjjkamal123/Complete-Habit-Tracker.git
-cd Complete-Habit-Tracker
-npm install
-npm run dev
-```
 
 <details>
 <summary>Native builds</summary>
