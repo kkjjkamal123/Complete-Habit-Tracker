@@ -1,6 +1,5 @@
 <div align="center">
 
-<img src="./assets/icon.png" width="96" alt="DailyTrack" />
 
 # DailyTrack
 
