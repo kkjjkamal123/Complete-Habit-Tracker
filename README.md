@@ -7,7 +7,7 @@
 A premium, local-first tracker for tasks, time, habits, goals and daily reviews —
 one delightful app for **Android · Windows · Linux · Web**.
 
-[Download](#download) &nbsp;·&nbsp; [Features](#features) &nbsp;·&nbsp;
+[Download](#download) &nbsp;·&nbsp; [Features](#features)
 
 </div>
 
