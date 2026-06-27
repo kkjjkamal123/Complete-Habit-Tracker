@@ -16,6 +16,7 @@ dist-ssr
 release
 release-artifacts
 build/icon.png
+build/icons
 *.apk
 *.aab
 android/local.properties

@@ -45,7 +45,7 @@
         "deb"
       ],
       "category": "Utility",
-      "icon": "build/icon.png",
+      "icon": "build/icons",
       "maintainer": "Kamalesh VS",
       "executableName": "dailytrack",
       "synopsis": "Local-first daily activity, habit and goal tracker",
