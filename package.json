@@ -1,0 +1,98 @@
+{
+  "name": "daily-tracker",
+  "private": true,
+  "version": "1.1.0",
+  "type": "module",
+  "description": "DailyTrack — your day, beautifully tracked. A local-first daily activity, habit and goal tracker.",
+  "author": "Kamalesh VS",
+  "homepage": "https://github.com/kkjjkamal123/Complete-Habit-Tracker",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kkjjkamal123/Complete-Habit-Tracker.git"
+  },
+  "main": "electron/main.cjs",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "oxlint",
+    "preview": "vite preview",
+    "android:open": "npm run build && cap sync android && cap open android",
+    "android:run": "npm run build && cap sync android && cap run android",
+    "android:apk": "npm run build && cap sync android && cd android && ./gradlew assembleDebug",
+    "icon": "node build/make-icon.cjs",
+    "electron:dev": "npm run build && electron .",
+    "web:build:desktop": "tsc -b && vite build --base ./",
+    "dist:linux": "npm run icon && npm run web:build:desktop && electron-builder --linux AppImage deb",
+    "dist:win": "npm run icon && npm run web:build:desktop && electron-builder --win nsis",
+    "dist:desktop": "npm run icon && npm run web:build:desktop && electron-builder --linux AppImage deb --win nsis"
+  },
+  "build": {
+    "appId": "com.kamalesh.dailytrack",
+    "productName": "DailyTrack",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json",
+      "!node_modules/**/*"
+    ],
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Utility",
+      "icon": "build/icon.png",
+      "maintainer": "Kamalesh VS",
+      "executableName": "dailytrack",
+      "synopsis": "Local-first daily activity, habit and goal tracker",
+      "artifactName": "DailyTrack-${version}-${arch}.${ext}"
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "build/icon.png",
+      "artifactName": "DailyTrack-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "shortcutName": "DailyTrack"
+    }
+  },
+  "dependencies": {
+    "@capacitor-firebase/authentication": "^8.3.0",
+    "@capacitor/app": "^8.1.0",
+    "@capacitor/core": "^8.4.1",
+    "@capacitor/haptics": "^8.0.2",
+    "@capacitor/splash-screen": "^8.0.1",
+    "@capacitor/status-bar": "^8.0.2",
+    "canvas-confetti": "^1.9.4",
+    "date-fns": "^4.4.0",
+    "firebase": "^12.15.0",
+    "framer-motion": "^12.40.0",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "react-router-dom": "^7.18.0"
+  },
+  "devDependencies": {
+    "@capacitor/android": "^8.4.1",
+    "@capacitor/cli": "^8.4.1",
+    "@resvg/resvg-js": "^2.6.2",
+    "@types/canvas-confetti": "^1.9.0",
+    "@types/node": "^24.13.2",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.2",
+    "electron": "^42.5.0",
+    "electron-builder": "^26.15.3",
+    "oxlint": "^1.69.0",
+    "typescript": "~6.0.2",
+    "vite": "^8.1.0"
+  }
+}

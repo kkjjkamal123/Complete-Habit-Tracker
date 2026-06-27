@@ -1,0 +1,265 @@
+/* ============================================================
+   DailyTrack — Design System
+   Warm-neutral, tangerine accent, editorial. Not your average
+   purple-gradient app. Dark-first with a warm light theme.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+
+:root {
+  /* ---- Type ---- */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, system-ui, sans-serif;
+  --font-display: 'Space Grotesk', var(--font-sans);
+
+  --fs-xs: clamp(0.72rem, 0.7rem + 0.1vw, 0.78rem);
+  --fs-sm: clamp(0.82rem, 0.8rem + 0.15vw, 0.9rem);
+  --fs-base: clamp(0.95rem, 0.92rem + 0.2vw, 1.02rem);
+  --fs-lg: clamp(1.1rem, 1.05rem + 0.35vw, 1.3rem);
+  --fs-xl: clamp(1.4rem, 1.3rem + 0.7vw, 1.85rem);
+  --fs-2xl: clamp(1.8rem, 1.6rem + 1.2vw, 2.6rem);
+  --fs-3xl: clamp(2.4rem, 2rem + 2vw, 3.4rem);
+
+  /* ---- 8pt spacing grid ---- */
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-5: 1.5rem;
+  --sp-6: 2rem;
+  --sp-7: 2.5rem;
+  --sp-8: 3rem;
+
+  /* ---- Radii ---- */
+  --r-sm: 9px;
+  --r-md: 14px;
+  --r-lg: 18px;
+  --r-xl: 26px;
+  --r-full: 999px;
+
+  /* ---- Layout ---- */
+  --topbar-h: 60px;
+
+  /* ---- One confident accent — USER-CUSTOMISABLE.
+     Only --c-accent is set by the theme picker; the lighter shade and the
+     gradient derive from it automatically via color-mix. ---- */
+  --c-accent: #ff5c2b;
+  --c-accent-2: color-mix(in srgb, var(--c-accent), #ffffff 24%);
+  --grad-accent: linear-gradient(135deg, var(--c-accent-2), var(--c-accent));
+
+  /* "To-Do" / primary follows the chosen accent */
+  --c-move: var(--c-accent);
+  --grad-move: var(--grad-accent);
+
+  /* Other module accents stay semantic (fixed) */
+  --c-time: #2d7ff9;
+  --c-habit: #f5a524;
+  --c-goal: #18b26b;
+  --c-review: #6366f1;
+
+  --grad-time: linear-gradient(135deg, #5b9bff, #2d7ff9);
+  --grad-habit: linear-gradient(135deg, #ffc24b, #f5a524);
+  --grad-goal: linear-gradient(135deg, #3ddc8c, #18b26b);
+  --grad-review: linear-gradient(135deg, #8b8fff, #6366f1);
+
+  /* ---- Motion ---- */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 0.16s;
+  --dur-med: 0.3s;
+}
+
+/* ---- Dark theme (default): neutral near-black, NO purple glow ---- */
+:root,
+[data-theme='dark'] {
+  --bg: #0e0e12;
+  --bg-grad: radial-gradient(900px 480px at 50% -18%, rgba(255, 255, 255, 0.035), transparent 60%), #0e0e12;
+  --surface: #17171d;
+  --surface-2: #1f1f27;
+  --surface-solid: #17171d;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.15);
+  --text: #f4f3f0;
+  --text-dim: #9b9ba6;
+  --text-faint: #65656f;
+  --shadow-lg: 0 20px 50px -16px rgba(0, 0, 0, 0.65);
+  --shadow-sm: 0 2px 10px -4px rgba(0, 0, 0, 0.5);
+}
+
+/* ---- Light theme: warm paper, not cold white ---- */
+[data-theme='light'] {
+  --bg: #f5f3ee;
+  --bg-grad: radial-gradient(900px 480px at 50% -18%, rgba(255, 255, 255, 0.7), transparent 60%), #f5f3ee;
+  --surface: #ffffff;
+  --surface-2: #efece5;
+  --surface-solid: #ffffff;
+  --border: rgba(24, 20, 14, 0.1);
+  --border-strong: rgba(24, 20, 14, 0.2);
+  --text: #1b1812;
+  --text-dim: #5c574d;
+  --text-faint: #8f8a7e;
+  --shadow-lg: 0 20px 50px -18px rgba(60, 45, 20, 0.2);
+  --shadow-sm: 0 2px 10px -5px rgba(60, 45, 20, 0.14);
+}
+
+/* ============================================================
+   Reset & base
+   ============================================================ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  /* Kill the square blue flash Android paints on every tap. */
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  /* Top safe-area inset. On native we floor it so the top bar always clears the
+     status bar even if the WebView reports 0; on web it's just the notch (0 on
+     non-notch displays). */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+html.native {
+  --safe-top: max(env(safe-area-inset-top, 0px), 24px);
+}
+
+/* Interactive chrome shouldn't be text-selectable or show the long-press
+   callout on touch — it reads as native then. */
+button,
+a,
+.tab,
+.nav-link,
+.icon-btn,
+.swatch,
+.chip,
+.seg-btn,
+.check,
+.mood {
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--fs-base);
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--bg);
+  background-image: var(--bg-grad);
+  background-repeat: no-repeat;
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+  /* No rubber-band glow / accidental pull-to-refresh inside the app. */
+  overscroll-behavior-y: none;
+}
+
+#root {
+  min-height: 100dvh;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-weight: 600;
+}
+
+ul {
+  list-style: none;
+}
+
+/* Keyboard focus only (never fires on touch, so phones never see it). The
+   outline follows the element's own border-radius, so round controls get a
+   round ring instead of a square box. */
+:focus-visible {
+  outline: 2.5px solid var(--c-accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Forced "animations off" — user setting / potato-PC mode. Kills every
+   transition & loop app-wide for maximum snappiness. */
+[data-m-off] *,
+[data-m-off] *::before,
+[data-m-off] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+}
+
+.accent-text {
+  color: var(--c-accent);
+}
+
+.display {
+  font-family: var(--font-display);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Slim scrollbar on mouse/trackpad devices only. */
+@media (pointer: fine) {
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border-strong);
+    border-radius: var(--r-full);
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+/* Touch devices: no visible scrollbar line at all. */
+@media (pointer: coarse) {
+  * {
+    scrollbar-width: none;
+  }
+  ::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+  }
+}

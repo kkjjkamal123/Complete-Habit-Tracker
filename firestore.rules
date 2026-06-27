@@ -1,0 +1,33 @@
+rules_version = '2';
+
+// DailyTrack security rules.
+//
+// Every user can read and write ONLY their own data under /users/{uid}.
+// Everything else is denied by default (there is no catch-all match).
+//
+// Deploy:  firebase deploy --only firestore:rules
+// (or paste into Firebase console → Firestore Database → Rules)
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    match /users/{userId} {
+      // The /users/{uid} doc itself (reserved for future profile data).
+      allow read, write: if isOwner(userId);
+
+      // The app syncs exactly these collections; each document is keyed by its
+      // own item id. Pinning the allowed collection names + requiring the stored
+      // id to match the document id stops a signed-in client writing arbitrary
+      // shapes or stray collections into its own tree.
+      match /{collection}/{itemId} {
+        allow read, delete: if isOwner(userId);
+        allow create, update: if isOwner(userId)
+          && collection in ['activities', 'todos', 'habits', 'goals', 'reviews']
+          && request.resource.data.id == itemId;
+      }
+    }
+  }
+}
