@@ -13,4 +13,8 @@ ext {
     androidxJunitVersion = '1.3.0'
     androidxEspressoCoreVersion = '3.7.0'
     cordovaAndroidVersion = '14.0.1'
+    // Compile the native Google sign-in code into @capacitor-firebase/authentication.
+    // Without this the plugin's signInWithGoogle is not built and Capacitor throws
+    // [UNIMPLEMENTED] at runtime. (Runtime sign-in additionally needs google-services.json.)
+    rgcfaIncludeGoogle = true
 }

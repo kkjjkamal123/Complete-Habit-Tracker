@@ -31,6 +31,16 @@ const AuthCtx = createContext<Ctx>({
  *  isn't enabled", which sent people debugging the wrong thing. */
 function authErrorMessage(e: unknown): string {
   const code = (e as { code?: string })?.code ?? '';
+  const msg = (e as { message?: string })?.message ?? '';
+  // Native (Capacitor) Google sign-in isn't fully set up on Android yet.
+  if (
+    code === 'UNIMPLEMENTED' ||
+    /unimplemented|firebaseapp is not initialized|google_app_id|default_web_client_id|web client|no credential/i.test(
+      msg,
+    )
+  ) {
+    return 'Android Google sign-in needs a one-time Firebase setup (google-services.json + SHA-1 fingerprint). See ANDROID-SIGNIN.md.';
+  }
   switch (code) {
     case 'auth/unauthorized-domain':
       return 'This domain isn’t authorised in Firebase. Add it under Authentication → Settings → Authorised domains, then retry.';
@@ -49,10 +59,7 @@ function authErrorMessage(e: unknown): string {
       return 'Google sign-in isn’t enabled for this project. Enable it under Authentication → Sign-in method → Google.';
     default:
       if (code) return `Sign-in failed (${code}).`;
-      return (
-        (e as { message?: string })?.message ??
-        'Sign-in failed. Check the Firebase config and that Google sign-in is enabled.'
-      );
+      return msg || 'Sign-in failed. Check the Firebase config and that Google sign-in is enabled.';
   }
 }
 

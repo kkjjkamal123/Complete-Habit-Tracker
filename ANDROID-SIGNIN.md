@@ -5,9 +5,11 @@ can never work in the Android app. V1.1 routes Android sign-in through the nativ
 `@capacitor-firebase/authentication` plugin instead and exchanges its credential for a
 Firebase JS-SDK session (so Firestore sync keeps using the same user).
 
-The **code** is already wired (`src/lib/nativeAuth.ts`, `src/lib/auth.tsx`,
-`capacitor.config.ts`) and the npm package is installed. The steps below are the parts that
-need your Firebase project + signing keystore — they can't be done from the repo.
+The **code + native config** are already wired: `src/lib/nativeAuth.ts`, `src/lib/auth.tsx`,
+`capacitor.config.ts`, the npm package, and — critically — `rgcfaIncludeGoogle = true` in
+`android/variables.gradle`, which compiles the plugin's native Google method so it isn't
+`[UNIMPLEMENTED]`. The steps below are the parts that need your Firebase project + signing
+keystore — they can't be done from the repo, and Google sign-in stays inert until they're done.
 
 ## 1. Add the Android app to Firebase (once)
 
