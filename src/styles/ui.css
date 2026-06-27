@@ -1159,6 +1159,12 @@ textarea.codebox {
   font-size: var(--fs-sm);
   line-height: 1.55;
 }
+/* Let the step's content column shrink below its content width so the rules
+   codebox scrolls inside its own box instead of pushing the card off-screen. */
+.step-body {
+  flex: 1;
+  min-width: 0;
+}
 .step a {
   color: var(--c-time);
   font-weight: 600;

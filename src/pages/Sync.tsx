@@ -240,10 +240,13 @@ export default function Sync() {
             Open <strong>Authentication → Sign-in method</strong> and enable <strong>Google</strong>.
           </Step>
           <Step n={4}>
-            Open <strong>Firestore Database</strong> and create a database (Production mode is fine).
+            Open <strong>Build → Firestore Database</strong> and create one (Production mode is
+            fine). It must be <strong>Cloud Firestore</strong> — <em>not</em> Realtime Database.
+            They’re different products with different rules.
           </Step>
           <Step n={5}>
-            In <strong>Firestore → Rules</strong>, paste these (so only you can read your data):
+            In <strong>Firestore Database → Rules</strong> (not Realtime Database — that one wants
+            JSON and will say “parse error”), paste these so only you can read your data:
             <div className="codebox-wrap">
               <pre className="codebox">{RULES}</pre>
               <button className="btn btn-soft copy-btn" onClick={copyRules}>
@@ -269,7 +272,7 @@ function Step({ n, children }: { n: number; children: ReactNode }) {
   return (
     <li className="step">
       <span className="step-num">{n}</span>
-      <div>{children}</div>
+      <div className="step-body">{children}</div>
     </li>
   );
 }

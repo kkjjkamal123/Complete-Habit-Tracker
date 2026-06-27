@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 import type { User } from 'firebase/auth';
 import { isFirebaseConfigured, getFirebase } from '../firebase/config';
 import { startSync, stopSync } from './sync';
-import { isElectron, isNativePlatform } from './platform';
+import { isNativePlatform } from './platform';
 import { signInNative, signOutNative } from './nativeAuth';
 
 interface Ctx {
@@ -37,7 +37,7 @@ function authErrorMessage(e: unknown): string {
     case 'auth/operation-not-supported-in-this-environment':
       return 'Sign-in isn’t supported in this environment. Make sure you’re on this updated build (the desktop app now serves over http so sign-in works).';
     case 'auth/popup-blocked':
-      return 'Your browser blocked the sign-in popup — allow popups for this site, or retry to use a full-page redirect.';
+      return 'Your browser blocked the sign-in popup. Allow popups for this site, then tap “Sign in with Google” again.';
     case 'auth/popup-closed-by-user':
     case 'auth/cancelled-popup-request':
       return 'Sign-in was cancelled.';
@@ -56,16 +56,6 @@ function authErrorMessage(e: unknown): string {
   }
 }
 
-/** Popup couldn't run at all — fall back to a full-page redirect. (A user
- *  closing/cancelling the popup is NOT this — we don't redirect on that.) */
-function popupUnusable(e: unknown): boolean {
-  const code = (e as { code?: string })?.code ?? '';
-  return (
-    code === 'auth/popup-blocked' ||
-    code === 'auth/operation-not-supported-in-this-environment'
-  );
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [enabled] = useState(isFirebaseConfigured);
   const [user, setUser] = useState<User | null>(null);
@@ -79,17 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     void (async () => {
       const fb = await getFirebase();
       if (!fb || !active) return;
-      const { onAuthStateChanged, getRedirectResult } = await import('firebase/auth');
-
-      // Complete any redirect-based sign-in started before this reload, and
-      // surface its error (e.g. unauthorized-domain) — which otherwise vanishes
-      // because the popup try/catch belongs to the previous page load.
-      try {
-        await getRedirectResult(fb.auth);
-      } catch (e) {
-        if (active) setAuthError(authErrorMessage(e));
-      }
-
+      const { onAuthStateChanged } = await import('firebase/auth');
       unsub = onAuthStateChanged(fb.auth, (u) => {
         setUser(u);
         setReady(true);
@@ -113,31 +93,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const fb = await getFirebase();
       if (!fb) return;
 
-      // Native app: Google blocks OAuth in the WebView — use the native plugin.
+      // Native app: Google blocks OAuth inside the WebView — use the native plugin.
       if (isNativePlatform()) {
         await signInNative(fb);
         return;
       }
 
-      const { signInWithPopup, signInWithRedirect } = await import('firebase/auth');
-
-      // Desktop (Electron): popups are unreliable in the embedded window — go
-      // straight to a redirect, completed by getRedirectResult on reload.
-      if (isElectron()) {
-        await signInWithRedirect(fb.auth, fb.googleProvider);
-        return;
-      }
-
-      // Web: popup for the best UX, redirect fallback when it can't open.
-      try {
-        await signInWithPopup(fb.auth, fb.googleProvider);
-      } catch (e) {
-        if (popupUnusable(e)) {
-          await signInWithRedirect(fb.auth, fb.googleProvider);
-          return;
-        }
-        throw e;
-      }
+      // Web + desktop (Electron): always use a popup. signInWithRedirect is
+      // unreliable in modern browsers with storage partitioning — it fails on
+      // return with "missing initial state" — and Firebase itself recommends
+      // popup over redirect. Electron is served over http and its main process
+      // allows the Google popup window (see electron/main.cjs), so it works there
+      // too. A popup is fine on mobile web as well (it's a user-gesture click).
+      const { signInWithPopup } = await import('firebase/auth');
+      await signInWithPopup(fb.auth, fb.googleProvider);
     } catch (e) {
       setAuthError(authErrorMessage(e));
     }
