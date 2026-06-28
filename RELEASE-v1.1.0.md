@@ -7,12 +7,11 @@ Firestore security rules, and fixes the mobile Sync screen.
 
 ## ✨ Fixes
 
-### Google sign-in — now works on web, desktop, and Android
+### Google sign-in — now works on web and desktop
 - **`authDomain` is auto-derived** from your project ID when you don't paste one — its absence was silently killing Google sign-in.
 - **Real error messages** — sign-in failures now show the actual cause (e.g. `auth/unauthorized-domain`, `auth/configuration-not-found`) instead of a generic "check Google is enabled."
 - **Popup-based sign-in** on web + desktop. The old redirect flow broke in modern browsers with storage partitioning ("missing initial state"); popup is Firebase's recommended approach.
 - **Desktop (Electron) now serves over `http://localhost`** instead of `file://`, which Firebase Auth refused — so sign-in works in the desktop app.
-- **Android uses native Google sign-in** (`@capacitor-firebase/authentication`), since Google blocks OAuth inside embedded WebViews.
 
 ### Sync & data
 - **Hardened, version-controlled Firestore rules** (`firestore.rules` + `firebase.json`) — owner-only, scoped to the five synced collections.
@@ -32,10 +31,10 @@ Firestore security rules, and fixes the mobile Sync screen.
 
 Verify downloads against `SHA256SUMS.txt`.
 
-## ⚠️ Android Google sign-in — one-time setup
-The APK's **Google sign-in** needs a one-time Firebase setup (`google-services.json` + your app's
-SHA-1 fingerprint). Steps are in **`ANDROID-SIGNIN.md`**. Everything else — habits, to-dos, time,
-goals, reviews, and fully offline local-first storage — works out of the box.
+## Android — local-first
+The Android app keeps everything **on your device** — there's no Firebase setup to do. Cloud sync
+(sign in with your own free Firebase) is a **web + desktop** feature. All trackers — habits,
+to-dos, time, goals, reviews — work fully offline.
 
 ## Cloud sync setup (optional)
 Sync uses **your own** free Firebase. In the app: **Sync tab → paste your Firebase config →

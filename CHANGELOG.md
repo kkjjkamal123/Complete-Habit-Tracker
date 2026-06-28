@@ -10,10 +10,6 @@ every platform**, hardens the Firestore security rules, and polishes the mobile 
 experience. **No migration needed** — local data and your Firebase config carry over unchanged.
 
 ### Added
-- **Native Android Google sign-in** (`@capacitor-firebase/authentication`). Google blocks OAuth
-  inside embedded WebViews, so the APK now authenticates through Google Play services and exchanges
-  the credential into the Firebase JS SDK. (One-time `google-services.json` setup — see
-  `ANDROID-SIGNIN.md`.)
 - **Version-controlled Firestore rules** — `firestore.rules` + `firebase.json`, deployable with
   `firebase deploy --only firestore:rules` instead of copy-pasting.
 - **Real sign-in error messages** — the actual Firebase error code is shown
@@ -21,9 +17,11 @@ experience. **No migration needed** — local data and your Firebase config carr
   generic "check Google is enabled."
 - **Full desktop icon set** — Linux installers now ship every hicolor size (16–512), so the app
   launcher shows the DailyTrack icon.
-- **Docs** — `ANDROID-SIGNIN.md`, `RELEASE-v1.1.0.md`, and this `CHANGELOG.md`.
+- **Docs** — `RELEASE-v1.1.0.md` and this `CHANGELOG.md`.
 
 ### Changed
+- **Android is local-first** — cloud sync + Google sign-in are a web/desktop feature (everyone
+  connects their own Firebase). Nothing project-specific is baked into the APK.
 - **Sign-in now uses popups, not redirects** (web + desktop). `signInWithRedirect` broke in modern
   browsers with storage partitioning ("missing initial state"); popup is Firebase's recommended
   flow and works on mobile web too.
@@ -37,7 +35,8 @@ experience. **No migration needed** — local data and your Firebase config carr
   owner-only access with document-id validation.
 
 ### Fixed
-- **Google sign-in was broken on web, desktop, and Android in v1.0** — now works on all three.
+- **Google sign-in was broken on web and desktop in v1.0** — now works on both. (Android is
+  intentionally local-first; cloud sync lives on web/desktop.)
 - **Mobile Sync page** — the setup-guide rules box no longer overflows the card; it scrolls inside
   its own box, and **Copy rules** grabs the full text.
 - **Cold-cache sync guard** — a transient empty Firestore cache snapshot can no longer wipe local
@@ -56,8 +55,6 @@ experience. **No migration needed** — local data and your Firebase config carr
 | `firestore.rules` | Version-controlled Firestore security rules |
 | `firebase.json` | Firebase CLI config (rules deploy) |
 | `src/lib/platform.ts` | Runtime platform detection (web / Electron / native) |
-| `src/lib/nativeAuth.ts` | Native Capacitor Google sign-in flow |
-| `ANDROID-SIGNIN.md` | Android native sign-in setup guide |
 | `RELEASE-v1.1.0.md` | v1.1.0 release notes |
 | `CHANGELOG.md` | This file |
 
@@ -71,9 +68,8 @@ experience. **No migration needed** — local data and your Firebase config carr
 | `src/pages/Sync.tsx` | Layout fix, Google button, Firestore-vs-Realtime guide |
 | `src/styles/ui.css` | Sync layout + mobile overflow CSS |
 | `electron/main.cjs` | Serve over `http://localhost` (was `file://`) |
-| `capacitor.config.ts` | `FirebaseAuthentication` plugin config |
 | `build/make-icon.cjs` | Generate the full icon size set |
-| `package.json` | Add native-auth plugin; `linux.icon` → icon-set dir |
+| `package.json` | `linux.icon` → icon-set dir |
 | `src/main.tsx` | Router comment (Electron now serves over http) |
 | `.gitignore` | Ignore secrets, signing keys, `google-services.json`, build outputs |
 

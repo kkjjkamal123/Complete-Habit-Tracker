@@ -12,6 +12,7 @@ import {
 } from '../firebase/config';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
+import { isNativePlatform } from '../lib/platform';
 
 // Kept byte-identical (functionally) to firestore.rules so the in-app copy and
 // the version-controlled file never drift.
@@ -108,6 +109,28 @@ export default function Sync() {
     } catch {
       /* clipboard blocked */
     }
+  }
+
+  // Android is local-first — cloud sync + sign-in live on web/desktop, where each
+  // person connects their own Firebase.
+  if (isNativePlatform()) {
+    return (
+      <>
+        <header className="page-head">
+          <h1>Sync</h1>
+          <p>DailyTrack keeps your data on this device.</p>
+        </header>
+        <Card>
+          <div className="empty">
+            <h3>Local-first on Android</h3>
+            <p>
+              Everything you track stays on this device. For cloud sync across devices, open
+              DailyTrack on the web or desktop and connect your own free Firebase.
+            </p>
+          </div>
+        </Card>
+      </>
+    );
   }
 
   const problem = authError || syncErr;

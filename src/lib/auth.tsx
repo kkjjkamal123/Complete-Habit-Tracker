@@ -3,7 +3,6 @@ import type { User } from 'firebase/auth';
 import { isFirebaseConfigured, getFirebase } from '../firebase/config';
 import { startSync, stopSync } from './sync';
 import { isNativePlatform } from './platform';
-import { signInNative, signOutNative } from './nativeAuth';
 
 interface Ctx {
   user: User | null;
@@ -26,26 +25,15 @@ const AuthCtx = createContext<Ctx>({
   signOutUser: async () => {},
 });
 
-/** Translate a Firebase auth error into a message that actually points at the
- *  cause — the old code swallowed the error and always blamed "Google sign-in
- *  isn't enabled", which sent people debugging the wrong thing. */
+/** Translate a Firebase auth error into a message that points at the real cause. */
 function authErrorMessage(e: unknown): string {
   const code = (e as { code?: string })?.code ?? '';
   const msg = (e as { message?: string })?.message ?? '';
-  // Native (Capacitor) Google sign-in isn't fully set up on Android yet.
-  if (
-    code === 'UNIMPLEMENTED' ||
-    /unimplemented|firebaseapp is not initialized|google_app_id|default_web_client_id|web client|no credential/i.test(
-      msg,
-    )
-  ) {
-    return 'Android Google sign-in needs a one-time Firebase setup (google-services.json + SHA-1 fingerprint). See ANDROID-SIGNIN.md.';
-  }
   switch (code) {
     case 'auth/unauthorized-domain':
       return 'This domain isn’t authorised in Firebase. Add it under Authentication → Settings → Authorised domains, then retry.';
     case 'auth/operation-not-supported-in-this-environment':
-      return 'Sign-in isn’t supported in this environment. Make sure you’re on this updated build (the desktop app now serves over http so sign-in works).';
+      return 'Sign-in isn’t supported in this environment. Make sure you’re on this updated build (the desktop app serves over http so sign-in works).';
     case 'auth/popup-blocked':
       return 'Your browser blocked the sign-in popup. Allow popups for this site, then tap “Sign in with Google” again.';
     case 'auth/popup-closed-by-user':
@@ -64,7 +52,11 @@ function authErrorMessage(e: unknown): string {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [enabled] = useState(isFirebaseConfigured);
+  // Cloud sync + Google sign-in are web/desktop only. The Android app is
+  // local-first: Google blocks OAuth inside the WebView, and baking in a single
+  // google-services.json would hard-wire one Firebase project — wrong for an app
+  // where everyone brings their own. So sync stays off on native.
+  const [enabled] = useState(() => !isNativePlatform() && isFirebaseConfigured());
   const [user, setUser] = useState<User | null>(null);
   const [ready, setReady] = useState(!enabled);
   const [authError, setAuthError] = useState<string | null>(null);
@@ -99,19 +91,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const fb = await getFirebase();
       if (!fb) return;
-
-      // Native app: Google blocks OAuth inside the WebView — use the native plugin.
-      if (isNativePlatform()) {
-        await signInNative(fb);
-        return;
-      }
-
-      // Web + desktop (Electron): always use a popup. signInWithRedirect is
-      // unreliable in modern browsers with storage partitioning — it fails on
-      // return with "missing initial state" — and Firebase itself recommends
-      // popup over redirect. Electron is served over http and its main process
-      // allows the Google popup window (see electron/main.cjs), so it works there
-      // too. A popup is fine on mobile web as well (it's a user-gesture click).
+      // Popup flow (web + desktop). signInWithRedirect breaks on storage-
+      // partitioned browsers ("missing initial state"); popup is Firebase's
+      // recommended approach and works on mobile web too.
       const { signInWithPopup } = await import('firebase/auth');
       await signInWithPopup(fb.auth, fb.googleProvider);
     } catch (e) {
@@ -124,15 +106,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!fb) return;
     stopSync();
     const { signOut } = await import('firebase/auth');
-    if (isNativePlatform()) {
-      // Also clear the native Google session so the next sign-in can switch
-      // accounts instead of silently reusing the last one.
-      try {
-        await signOutNative();
-      } catch {
-        /* plugin missing / already signed out */
-      }
-    }
     await signOut(fb.auth);
   };
 
